@@ -35,7 +35,7 @@ build_auth:
 	chdir ..\authentication-service && set GOOS=linux&& set GOARCH=amd64&& set CGO_ENABLED=0 && go build -o ${AUTH_BINARY} ./cmd/api
 	@echo Done!
 
-## build_front: builds the frone end binary
+## build_front: builds the front end binary
 build_front:
 	@echo Building front end binary...
 	chdir ..\front-end && set CGO_ENABLED=0&& set GOOS=windows&& go build -o ${FRONT_END_BINARY} ./cmd/web
