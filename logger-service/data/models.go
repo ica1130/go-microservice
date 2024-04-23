@@ -5,7 +5,9 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var client *mongo.Client
@@ -47,4 +49,42 @@ func (l *LogEntry) Insert(entry LogEntry) error {
 	}
 
 	return nil
+}
+
+func (l *LogEntry) All() ([]*LogEntry, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	collection := client.Database("logs").Collection(("logs"))
+
+	// we want to get all the logs
+	opts := options.Find()
+	// we want to sort the results by the created_at field in descending order
+	// this is specific to mongoDB
+	opts.SetSort(bson.D{{"created_at", -1}})
+
+	cursor, err := collection.Find(context.TODO(), bson.D{}, opts)
+
+	if err != nil {
+		log.Println("Finding all docs error:", err)
+		return nil, err
+	}
+
+	defer cursor.Close(ctx)
+
+	var logs []*LogEntry
+
+	for cursor.Next(ctx) {
+		var item LogEntry
+
+		err := cursor.Decode(&item)
+		if err != nil {
+			log.Println("Error decoding log into slice: ", err)
+			return nil, err
+		} else {
+			logs = append(logs, &item)
+		}
+	}
+
+	return logs, nil
 }
