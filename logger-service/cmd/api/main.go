@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -26,8 +27,20 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-
 	client = mongoClient
+
+	// create a context in order to disconnect from mongo
+	// in main function it is usuall to create a context with contex.Background() because it is the parent of all contexts
+	// in functions that are not main but require a new context, it is better to use context.TODO()
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	// close connection to mongo
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
+			panic(err)
+		}
+	}()
 }
 
 func connectToMongo() (*mongo.Client, error) {
