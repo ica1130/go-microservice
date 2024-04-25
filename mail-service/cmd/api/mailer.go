@@ -1,5 +1,9 @@
 package main
 
+// in this file we will define the mailer struct and the message struct first
+// we will also define the methods to send the email
+// we will use the go-simple-mail library to send the email
+
 import (
 	"bytes"
 	"html/template"
