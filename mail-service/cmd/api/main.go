@@ -6,8 +6,7 @@ import (
 	"net/http"
 )
 
-type Config struct {
-}
+type Config struct{}
 
 const webPort = "80"
 
@@ -25,4 +24,5 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+
 }
