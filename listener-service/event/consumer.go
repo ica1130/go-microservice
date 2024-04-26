@@ -3,6 +3,7 @@ package event
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -91,4 +92,24 @@ func (consumer *Consumer) Listen(topics []string) error {
 	<-forever
 
 	return nil
+}
+
+func handlePayload(payload Payload) {
+	switch payload.Name {
+	case "log", "event":
+		// log what we received
+		err := logEvent(payload)
+		if err != nil {
+			log.Println(err)
+		}
+	case "auth":
+		// authenticate the user
+
+	// as much cases as we need we can implement here for different types of events
+	default:
+		err := logEvent(payload)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 }
