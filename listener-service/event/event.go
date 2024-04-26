@@ -15,3 +15,14 @@ func declareExchange(ch *amqp.Channel) error {
 		nil,          // arguments?
 	)
 }
+
+func declareRandomQueue(ch *amqp.Channel) (amqp.Queue, error) {
+	return ch.QueueDeclare(
+		"",    // name of the queue
+		false, // not durable, get deleted when the server restarts
+		false, // delete when unused?
+		true,  // exclusive, used by only one connection and the queue will be deleted when that connection closes
+		false, // no-wait
+		nil,   // no specific arguments for this queue
+	)
+}
