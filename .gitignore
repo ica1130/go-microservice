@@ -22,3 +22,11 @@ go.work
 
 #DB files
 project/db-data/*
+
+# App files
+authentication-service/authApp
+broker-service/brokerApp
+front-end/frontApp.exe
+listener-service/listenerApp
+logger-service/loggerServiceApp
+mail-service/mailerServiceApp
