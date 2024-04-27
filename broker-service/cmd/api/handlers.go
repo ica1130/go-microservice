@@ -7,6 +7,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"net/rpc"
 )
 
 type RequestPayload struct {
@@ -55,7 +56,7 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	case "auth":
 		app.authenticate(w, requestPayload.Auth)
 	case "log":
-		app.logEventViaRabbit(w, requestPayload.Log)
+		app.logItemViaRPC(w, requestPayload.Log)
 	case "mail":
 		app.sendMail(w, requestPayload.Mail)
 	default:
@@ -221,4 +222,45 @@ func (app *Config) pushToQueue(name, msg string) error {
 	}
 
 	return nil
+}
+
+type RPCPayload struct {
+	Name string
+	Data string
+}
+
+func (app *Config) logItemViaRPC(w http.ResponseWriter, l LogPayload) {
+	// create a RPC Client using the built in rpc package and Dial function
+	// first argument is the protocol, second is the address which we got from the docker-compose file and the name of the service
+	client, err := rpc.Dial("tcp", "logger-service:5001")
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	// create a payload to send to the RPC server
+	// the type of the payload is the same as the struct we defined in the RPC server
+	rpcPayload := RPCPayload{
+		Name: l.Name,
+		Data: l.Data,
+	}
+
+	// result will be a string that we get back from the RPC server
+	var result string
+	// we will call the server using the Call function
+	// first argument is the name of the function we have defined in the RPC server
+	// second is the payload we want to send
+	// third is the variable we want to store the result in
+	err = client.Call("RPCServer.LogInfo", rpcPayload, &result)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	payload := jsonResponse{
+		Error:   false,
+		Message: result,
+	}
+
+	app.writeJSON(w, http.StatusAccepted, payload)
 }
