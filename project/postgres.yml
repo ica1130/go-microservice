@@ -5,7 +5,7 @@ services:
   postgres:
     image: 'postgres:14.2'
     ports: 
-      - "5432:5432" # first is the local machine port, second is the container port
+      - "5433:5432" # first is the local machine port, second is the container port
     deploy:
       mode: replicated
       replicas: 1
