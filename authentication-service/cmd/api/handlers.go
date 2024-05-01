@@ -24,7 +24,7 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 	log.Println("This is user email: ", requestPayload.Email)
 
 	// validate the user against the database
-	user, err := app.Models.User.GetByEmail(requestPayload.Email)
+	user, err := app.Repo.GetByEmail(requestPayload.Email)
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
@@ -32,7 +32,7 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("This is fetched user email", user.Email)
 
-	valid, err := user.PasswordMatches(requestPayload.Password)
+	valid, err := app.Repo.PasswordMatches(requestPayload.Password, *user)
 	if err != nil || !valid {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return

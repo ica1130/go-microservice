@@ -14,6 +14,7 @@ func Test_routes_exist(t *testing.T) {
 	// Convert the testRoutes to a chi router so we can test the routes
 	chiRoutes := testRoutes.(chi.Router)
 
+	// Define the routes we want to check
 	routes := []string{"/authenticate"}
 
 	for _, route := range routes {
